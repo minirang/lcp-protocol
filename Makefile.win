@@ -1,0 +1,27 @@
+.PHONY: install test lint type fmt bench build clean
+
+install:
+	python -m pip install -e ".[dev]"
+
+test:
+	python -m pytest
+
+lint:
+	python -m ruff check .
+	python -m ruff format --check .
+
+type:
+	python -m mypy
+
+fmt:
+	python -m ruff format .
+	python -m ruff check --fix .
+
+bench:
+	python -m benchmarks.bench --sizes 100,1024 --concurrency 1,16 --duration 2
+
+build:
+	python -m build
+
+clean:
+	python -c "import pathlib, shutil; [shutil.rmtree(p) for p in map(pathlib.Path, ('build', 'dist', '.pytest_cache', '.mypy_cache', '.ruff_cache', '.hypothesis', 'htmlcov')) if p.is_dir()]; pathlib.Path('.coverage').unlink(missing_ok=True); [shutil.rmtree(p) for p in pathlib.Path('.').rglob('__pycache__') if p.is_dir()]"
